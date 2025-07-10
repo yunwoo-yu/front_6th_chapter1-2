@@ -3,6 +3,7 @@ import { createVNode } from "../lib";
 import { router } from "../router";
 import { productStore } from "../stores";
 import { addToCart as addToCartWithProduct } from "../services";
+import { PublicImage } from "./PublicImage";
 
 const goToHomeWithCategory = async (categories) => {
   const queryString = new URLSearchParams(categories).toString();
@@ -177,7 +178,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                              rounded-l-md bg-gray-50 hover:bg-gray-100"
                 onClick={decrementQuantity}
               >
-                <img src="/quantity-minus-icon.svg" alt="수량 감소" className="w-4 h-4" />
+                <PublicImage src="/quantity-minus-icon.svg" alt="수량 감소" className="w-4 h-4" />
               </button>
 
               <input
@@ -196,7 +197,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                              rounded-r-md bg-gray-50 hover:bg-gray-100"
                 onClick={incrementQuantity}
               >
-                <img src="/quantity-plus-icon.svg" alt="수량 증가" className="w-4 h-4" />
+                <PublicImage src="/quantity-plus-icon.svg" alt="수량 증가" className="w-4 h-4" />
               </button>
             </div>
           </div>

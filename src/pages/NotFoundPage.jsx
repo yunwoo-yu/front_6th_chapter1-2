@@ -1,14 +1,14 @@
 /** @jsx createVNode */
 import { createVNode } from "../lib";
 import { PageWrapper } from "./PageWrapper";
-import { Logo } from "../components";
+import { Logo, PublicImage } from "../components";
 
 export const NotFoundPage = () =>
   PageWrapper({
     headerLeft: Logo(),
     children: (
       <div className="text-center my-4 py-20 shadow-md p-6 bg-white rounded-lg">
-        <img src="/404.svg" alt="페이지를 찾을 수 없습니다" />
+        <PublicImage src="/404.svg" alt="페이지를 찾을 수 없습니다" />
 
         <a
           href="/"
