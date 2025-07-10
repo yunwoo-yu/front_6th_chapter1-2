@@ -37,6 +37,7 @@
     "@testing-library/dom": "latest",
     "@testing-library/jest-dom": "latest",
     "@testing-library/user-event": "latest",
+    "@vitejs/plugin-react": "latest",
     "@vitest/ui": "latest",
     "@vitest/coverage-v8": "latest",
     "eslint": "^9.16.0",
@@ -48,7 +49,7 @@
     "lint-staged": "^15.2.11",
     "msw": "^2.10.2",
     "prettier": "^3.4.2",
-    "vite": "npm:rolldown-vite@latest",
+    "vite": "6.0.3",
     "vitest": "latest"
   }
 }

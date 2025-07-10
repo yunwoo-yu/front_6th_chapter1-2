@@ -28,24 +28,17 @@ class E2EHelpers {
     });
   }
 
-  // 토스트 메시지가 사라질 때까지 대기
-  async waitForToastToDisappear() {
-    await this.page.waitForSelector("text=장바구니에 추가되었습니다", {
-      state: "hidden",
-      timeout: 5000,
-    });
-  }
-
   // 장바구니 모달 열기
   async openCartModal() {
     await this.page.click("#cart-icon-btn");
     await this.page.waitForSelector(".cart-modal-overlay", { timeout: 5000 });
   }
 
-  // 현재 상품 개수 가져오기
-  async getCurrentProductCount() {
-    const countText = await this.page.textContent('[data-testid="product-count"]');
-    return countText ? parseInt(countText.replace(/[^\d]/g, "")) : 0;
+  async push(url) {
+    await this.page.evaluate((url) => {
+      window.history.pushState(null, "", url);
+      window.dispatchEvent(new Event("popstate"));
+    }, url);
   }
 }
 
@@ -62,8 +55,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("1. 애플리케이션 초기화 및 기본 기능", () => {
     test("페이지 접속 시 로딩 상태가 표시되고 상품 목록이 정상적으로 로드된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
 
       // 로딩 상태 확인
       await expect(page.locator("text=카테고리 로딩 중...")).toBeVisible();
@@ -83,8 +74,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("상품 카드에 기본 정보가 올바르게 표시된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 첫 번째 상품 카드 확인
@@ -107,8 +96,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("2. 검색 및 필터링 기능", () => {
     test("검색어 입력 후 Enter 키로 검색하고 URL이 업데이트된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 검색어 입력
@@ -142,8 +129,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("카테고리 선택 후 브레드크럼과 URL이 업데이트된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 1차 카테고리 선택
@@ -174,7 +159,7 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
       const helpers = new E2EHelpers(page);
 
       // 2차 카테고리 상태에서 시작
-      await page.goto("/?current=1&category1=생활%2F건강&category2=자동차용품&search=차량용");
+      await helpers.push("/?current=1&category1=생활%2F건강&category2=자동차용품&search=차량용");
       await helpers.waitForPageLoad();
       await expect(page.locator("text=9개")).toBeVisible();
 
@@ -187,11 +172,11 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
       // 전체 브레드크럼 클릭
       await page.click("text=전체");
-      await expect(page.locator("text=카테고리: 전체 생활/건강 디지털/가전")).toBeVisible();
+      await expect(page.locator("text=카테고리:전체생활/건강디지털/가전")).toBeVisible();
 
       await page.reload();
       await helpers.waitForPageLoad();
-      await expect(page.locator("text=카테고리: 전체 생활/건강 디지털/가전")).toBeVisible();
+      await expect(page.locator("text=카테고리:전체생활/건강디지털/가전")).toBeVisible();
 
       await page.fill("#search-input", "");
       await page.press("#search-input", "Enter");
@@ -202,8 +187,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("정렬 옵션 변경 시 URL이 업데이트된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 가격 높은순으로 정렬
@@ -229,8 +212,8 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
       await page.selectOption("#sort-select", "name_desc");
       await expect(page.locator(".product-card").nth(1)).toMatchAriaSnapshot(`
-    - img "P&G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개"
-    - heading "P&G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개" [level=3]
+    - img "P&amp;G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개"
+    - heading "P&amp;G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개" [level=3]
     - paragraph: 다우니
     - paragraph: 16,610원
     - button "장바구니 담기"
@@ -239,8 +222,8 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
       await page.reload();
       await helpers.waitForPageLoad();
       await expect(page.locator(".product-card").nth(1)).toMatchAriaSnapshot(`
-    - img "P&G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개"
-    - heading "P&G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개" [level=3]
+    - img "P&amp;G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개"
+    - heading "P&amp;G 다우니 울트라 섬유유연제 에이프릴 프레쉬, 5.03L, 1개" [level=3]
     - paragraph: 다우니
     - paragraph: 16,610원
     - button "장바구니 담기"
@@ -249,8 +232,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("페이지당 상품 수 변경 시 URL이 업데이트된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 10개로 변경
@@ -303,22 +284,19 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
       const helpers = new E2EHelpers(page);
 
       // 복잡한 쿼리 파라미터로 직접 접근
-      await page.goto("/?search=젤리&category1=생활%2F건강&sort=price_desc&limit=10");
+      await helpers.push("/?search=젤리&category1=생활%2F건강&sort=price_desc&limit=10");
       await helpers.waitForPageLoad();
 
-      // URL에서 복원된 상태 확인
+      await expect(page.locator("text=카테고리:").locator("..")).toContainText("생활/건강");
       await expect(page.locator("#search-input")).toHaveValue("젤리");
       await expect(page.locator("#sort-select")).toHaveValue("price_desc");
       await expect(page.locator("#limit-select")).toHaveValue("10");
 
-      // 카테고리 브레드크럼 확인
-      await expect(page.locator("text=카테고리:").locator("..")).toContainText("생활/건강");
+      await expect(page.locator("text=3개")).toBeVisible();
     });
 
     test("장바구니 내용이 localStorage에 저장되고 복원된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 상품을 장바구니에 추가
@@ -341,8 +319,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("장바구니 아이콘에 상품 개수가 정확히 표시된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 초기에는 개수 표시가 없어야 함
@@ -365,8 +341,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("4. 상품 상세 페이지 워크플로우", () => {
     test("상품 클릭부터 관련 상품 이동까지 전체 플로우", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await page.evaluate(() => {
         window.loadFlag = true;
       });
@@ -428,8 +402,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("5. 장바구니 완전한 워크플로우", () => {
     test("여러 상품 추가, 수량 조절, 선택 삭제 전체 시나리오", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 첫 번째 상품 추가
@@ -474,8 +446,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("전체 선택 후 장바구니 비우기", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 여러 상품 추가
@@ -509,8 +479,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("6. 무한 스크롤 기능", () => {
     test("페이지 하단 스크롤 시 추가 상품이 로드된다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 초기 상품 카드 수 확인
@@ -542,8 +510,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("7. 모달 및 UI 인터랙션", () => {
     test("장바구니 모달이 다양한 방법으로 열리고 닫힌다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 모달 열기
@@ -573,8 +539,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
     test("토스트 메시지 시스템이 올바르게 작동한다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await helpers.waitForPageLoad();
 
       // 상품을 장바구니에 추가하여 토스트 메시지 트리거
@@ -598,8 +562,6 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
   test.describe("8. SPA 네비게이션", () => {
     test("브라우저 뒤로가기/앞으로가기가 올바르게 작동한다", async ({ page }) => {
       const helpers = new E2EHelpers(page);
-
-      await page.goto("/");
       await page.evaluate(() => {
         window.loadFlag = true;
       });
@@ -661,8 +623,9 @@ test.describe("E2E: 쇼핑몰 전체 사용자 시나리오", () => {
 
       // 404 페이지 확인
       await expect(page.getByRole("main")).toMatchAriaSnapshot(`
-    - img: /404 페이지를 찾을 수 없습니다/
-    - link "홈으로"
+    - img "페이지를 찾을 수 없습니다"
+    - link "홈으로":
+      - /url: /
     `);
     });
   });

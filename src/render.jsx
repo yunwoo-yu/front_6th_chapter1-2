@@ -1,3 +1,5 @@
+/** @jsx createVNode */
+import { createVNode, renderElement } from "./lib";
 import { cartStore, productStore, uiStore } from "./stores";
 import { router } from "./router";
 import { HomePage, NotFoundPage, ProductDetailPage } from "./pages";
@@ -18,7 +20,7 @@ export const render = withBatch(() => {
   const PageComponent = router.target;
 
   // App 컴포넌트 렌더링
-  rootElement.innerHTML = PageComponent();
+  renderElement(<PageComponent />, rootElement);
 });
 
 /**
