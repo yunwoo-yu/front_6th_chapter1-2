@@ -12,7 +12,7 @@ export const NotFoundPage = () =>
 
         <a
           href="/"
-          data-link
+          data-link="/"
           className="inline-block px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
           홈으로

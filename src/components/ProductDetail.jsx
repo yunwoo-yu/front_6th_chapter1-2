@@ -87,12 +87,12 @@ export function ProductDetail({ product, relatedProducts = [] }) {
       {breadcrumbItems.length > 0 && (
         <nav className="mb-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <a href="/" data-link className="hover:text-blue-600 transition-colors">
+            <a href="/" data-link="/" className="hover:text-blue-600 transition-colors">
               홈
             </a>
             {breadcrumbItems
               .map((item, index) => [
-                <img
+                <PublicImage
                   key={`${item.category}-icon`}
                   src="/chevron-right-icon.svg"
                   alt="오른쪽 화살표"
@@ -140,7 +140,7 @@ export function ProductDetail({ product, relatedProducts = [] }) {
                   {Array(5)
                     .fill(0)
                     .map((_, i) => (
-                      <img
+                      <PublicImage
                         key={i}
                         src="/star-icon.svg"
                         alt="별점"

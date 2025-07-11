@@ -16,7 +16,7 @@ export const ErrorContent = ({ error }) => (
       >
         이전 페이지
       </button>
-      <a href="/" data-link className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
+      <a href="/" data-link="/" className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
         홈으로
       </a>
     </div>
