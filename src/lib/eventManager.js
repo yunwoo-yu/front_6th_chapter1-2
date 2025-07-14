@@ -44,7 +44,6 @@ export function removeEvent(element, eventType, handler) {
 
     if (!Object.keys(handlers[eventType]).length) {
       delete handlers[eventType];
-      registeredEventTypes.delete(eventType);
     }
 
     if (!Object.keys(handlers).length) {
@@ -54,12 +53,27 @@ export function removeEvent(element, eventType, handler) {
 }
 
 export const eventDelegationHandler = (e) => {
-  const elementHandlers = eventContext.get(e.target);
-  const eventHandlers = elementHandlers?.[e.type];
+  let currentElement = e.target;
 
-  if (eventHandlers) {
-    Object.values(eventHandlers).forEach((handler) => {
-      handler(e);
-    });
+  // 이벤트 버블링 처리 추가 currentElement가 있고 e.currentTarget.parentElement가 currentElement와 다르면 계속 반복
+  while (currentElement && currentElement !== e.currentTarget.parentElement) {
+    const elementHandlers = eventContext.get(currentElement);
+
+    if (elementHandlers) {
+      const eventHandlers = elementHandlers[e.type];
+
+      if (eventHandlers) {
+        Object.values(eventHandlers).forEach((handler) => {
+          try {
+            handler(e);
+          } catch (error) {
+            console.error(`Error in ${e.type} handler:`, error);
+          }
+        });
+        return;
+      }
+    }
+
+    currentElement = currentElement.parentElement;
   }
 };
