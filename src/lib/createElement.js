@@ -11,7 +11,7 @@ function updateAttributes($el, props) {
     } else if (key === "style") {
       Object.assign($el.style, value);
     } else if (value === true) {
-      $el[key] = value;
+      $el.setAttribute(key, "");
     } else if (value === false) {
       $el.removeAttribute(key);
     } else {
