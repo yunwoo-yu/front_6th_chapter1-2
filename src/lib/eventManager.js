@@ -44,6 +44,7 @@ export function removeEvent(element, eventType, handler) {
 
     if (!Object.keys(handlers[eventType]).length) {
       delete handlers[eventType];
+      registeredEventTypes.delete(eventType);
     }
 
     if (!Object.keys(handlers).length) {
