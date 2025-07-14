@@ -2,9 +2,12 @@ import { addEvent, removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
 function updateAttributes(target, newProps, oldProps) {
-  // 기존 속성 제거
-  if (oldProps) {
-    Object.keys(oldProps).forEach((key) => {
+  // newProps, oldProps가 없을경우 빈 객체로 초기화
+  const safeNewProps = newProps || {};
+  const safeOldProps = oldProps || {};
+
+  Object.keys(safeOldProps).forEach((key) => {
+    if (!(key in safeNewProps)) {
       if (key.startsWith("on")) {
         const eventType = key.slice(2).toLowerCase();
 
@@ -14,42 +17,43 @@ function updateAttributes(target, newProps, oldProps) {
       } else if (key === "style") {
         target.style = {};
       } else if (oldProps[key] === true) {
-        target[key] = true;
+        delete target[key];
       } else if (oldProps[key] === false) {
-        target[key] = false;
+        delete target[key];
       } else {
-        target.setAttribute(key, oldProps[key]);
+        target.removeAttribute(key);
       }
-    });
-  }
+    }
+  });
 
   // 새 속성 추가/업데이트
   if (newProps) {
     Object.keys(newProps).forEach((key) => {
-      if (oldProps[key] !== newProps[key]) {
-        if (key.startsWith("on")) {
-          const eventType = key.slice(2).toLowerCase();
+      if (key.startsWith("on")) {
+        const eventType = key.slice(2).toLowerCase();
 
-          if (oldProps[key]) {
-            removeEvent(target, eventType, oldProps[key]);
-          }
-
-          addEvent(target, eventType, newProps[key]);
-        } else if (key === "className") {
-          target.setAttribute("class", newProps[key]);
-        } else if (key === "style") {
-          Object.assign(target.style, newProps[key]);
-        } else if (newProps[key] === true) {
-          target[key] = true;
-        } else if (newProps[key] === false) {
-          target[key] = false;
-        } else {
-          target.setAttribute(key, newProps[key]);
+        if (oldProps[key]) {
+          removeEvent(target, eventType, oldProps[key]);
         }
+
+        if (typeof safeNewProps[key] === "function") {
+          addEvent(target, eventType, safeNewProps[key]);
+        }
+      } else if (key === "className") {
+        target.setAttribute("class", newProps[key]);
+      } else if (key === "style") {
+        Object.assign(target.style, newProps[key]);
+      } else if (newProps[key] === true) {
+        target[key] = true;
+      } else if (newProps[key] === false) {
+        target[key] = false;
+      } else {
+        target.setAttribute(key, newProps[key]);
       }
     });
   }
 }
+
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
   const currentElement = parentElement.childNodes[index];
 
