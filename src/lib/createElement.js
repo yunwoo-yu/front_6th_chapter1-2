@@ -7,13 +7,13 @@ function updateAttributes($el, props) {
 
       addEvent($el, eventType, value);
     } else if (key === "className") {
-      $el.setAttribute("class", value);
+      $el.calss = value;
     } else if (key === "style") {
       Object.assign($el.style, value);
     } else if (value === true) {
-      $el.setAttribute(key, "");
+      $el[key] = true;
     } else if (value === false) {
-      $el.removeAttribute(key);
+      $el[key] = false;
     } else {
       $el.setAttribute(key, value);
     }

@@ -10,9 +10,12 @@ export function renderElement(vNode, container) {
   const progressWorkInNodeTree = normalizeVNode(vNode);
 
   if (!currentNodeTree) {
+    console.log("최초 렌더링 #################");
     container.appendChild(createElement(progressWorkInNodeTree));
   } else {
+    console.log("업데이트 실행 #################");
     updateElement(container, progressWorkInNodeTree, currentNodeTree);
+    // container.replaceChild(createElement(progressWorkInNodeTree), container.firstChild);
   }
 
   currentNodeMap.set(container, progressWorkInNodeTree);
