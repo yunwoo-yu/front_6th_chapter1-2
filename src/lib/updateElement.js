@@ -1,57 +1,33 @@
 import { addEvent, removeEvent } from "./eventManager";
-import { createElement } from "./createElement.js";
+import { createElement, removeAttribute, setAttribute } from "./createElement.js";
 
 function updateAttributes(target, newProps, oldProps) {
   // newProps, oldProps가 없을경우 빈 객체로 초기화
   const safeNewProps = newProps || {};
   const safeOldProps = oldProps || {};
 
+  // 기존 속성 중 새 속성에 없는 것들 제거
   Object.keys(safeOldProps).forEach((key) => {
     if (!(key in safeNewProps)) {
-      if (key.startsWith("on")) {
-        const eventType = key.slice(2).toLowerCase();
-
-        removeEvent(target, eventType, oldProps[key]);
-      } else if (key === "className") {
-        target.removeAttribute("class");
-      } else if (key === "style") {
-        target.style = {};
-      } else if (oldProps[key] === true) {
-        delete target[key];
-      } else if (oldProps[key] === false) {
-        delete target[key];
-      } else {
-        target.removeAttribute(key);
-      }
+      removeAttribute(target, key, safeOldProps[key]);
     }
   });
 
   // 새 속성 추가/업데이트
-  if (newProps) {
-    Object.keys(newProps).forEach((key) => {
-      if (key.startsWith("on")) {
-        const eventType = key.slice(2).toLowerCase();
-
-        if (oldProps[key]) {
-          removeEvent(target, eventType, oldProps[key]);
-        }
-
-        if (typeof safeNewProps[key] === "function") {
-          addEvent(target, eventType, safeNewProps[key]);
-        }
-      } else if (key === "className") {
-        target.setAttribute("class", newProps[key]);
-      } else if (key === "style") {
-        Object.assign(target.style, newProps[key]);
-      } else if (newProps[key] === true) {
-        target[key] = true;
-      } else if (newProps[key] === false) {
-        target[key] = false;
-      } else {
-        target.setAttribute(key, newProps[key]);
+  Object.keys(safeNewProps).forEach((key) => {
+    if (key.startsWith("on")) {
+      const eventType = key.slice(2).toLowerCase();
+      if (safeOldProps[key]) {
+        removeEvent(target, eventType, safeOldProps[key]);
       }
-    });
-  }
+
+      if (safeNewProps[key]) {
+        addEvent(target, eventType, safeNewProps[key]);
+      }
+    } else {
+      setAttribute(target, key, safeNewProps[key]);
+    }
+  });
 }
 
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
@@ -92,7 +68,6 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
   // 자식 노드들 처리하기
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
-
   const minLength = Math.min(newChildren.length, oldChildren.length);
 
   // 먼저 겹치는 인덱스 요소까지 업데이트하기

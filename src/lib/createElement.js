@@ -1,23 +1,38 @@
-import { addEvent } from "./eventManager";
+import { addEvent, removeEvent } from "./eventManager";
 
-function updateAttributes($el, props) {
-  Object.entries(props).forEach(([key, value]) => {
-    if (key.startsWith("on") && typeof value === "function") {
-      const eventType = key.slice(2).toLowerCase();
+// 속성 설정 함수
+export function setAttribute(target, key, value) {
+  if (key.startsWith("on") && typeof value === "function") {
+    const eventType = key.slice(2).toLowerCase();
 
-      addEvent($el, eventType, value);
-    } else if (key === "className") {
-      $el.setAttribute("class", value);
-    } else if (key === "style") {
-      Object.assign($el.style, value);
-    } else if (value === true) {
-      $el[key] = true;
-    } else if (value === false) {
-      $el[key] = false;
-    } else {
-      $el.setAttribute(key, value);
-    }
-  });
+    addEvent(target, eventType, value);
+  } else if (key === "className") {
+    target.setAttribute("class", value);
+  } else if (key === "style") {
+    Object.assign(target.style, value);
+  } else if (value === true) {
+    target[key] = true;
+  } else if (value === false) {
+    target[key] = false;
+  } else {
+    target.setAttribute(key, value);
+  }
+}
+
+// 속성 제거 함수
+export function removeAttribute(target, key, value) {
+  if (key.startsWith("on")) {
+    const eventType = key.slice(2).toLowerCase();
+    removeEvent(target, eventType, value);
+  } else if (key === "className") {
+    target.removeAttribute("class");
+  } else if (key === "style") {
+    target.style = {};
+  } else if (value === true || value === false) {
+    delete target[key];
+  } else {
+    target.removeAttribute(key);
+  }
 }
 
 export function createElement(vNode) {
@@ -42,7 +57,9 @@ export function createElement(vNode) {
   const $element = document.createElement(vNode.type);
 
   if (vNode.props) {
-    updateAttributes($element, vNode.props);
+    Object.entries(vNode.props).forEach(([key, value]) => {
+      setAttribute($element, key, value);
+    });
   }
 
   $element.append(...vNode.children.map((child) => createElement(child)));

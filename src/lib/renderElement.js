@@ -13,7 +13,6 @@ export function renderElement(vNode, container) {
     container.appendChild(createElement(progressWorkInNodeTree));
   } else {
     updateElement(container, progressWorkInNodeTree, currentNodeTree);
-    // container.replaceChild(createElement(progressWorkInNodeTree), container.firstChild);
   }
 
   currentNodeMap.set(container, progressWorkInNodeTree);
